@@ -46,8 +46,8 @@ func (module *Module) Plugin(params map[string]interface{}, scenario *Scenario) 
 		if err != nil {
 			return err
 		}
-
 		name := strings.ReplaceAll(v, ".", "_")
+		name = strings.ToLower(name)
 		name = strings.Title(name)
 		module.AddPluginModule(name, f.(func(map[string]interface{}, *Scenario) error))
 	}

@@ -871,6 +871,7 @@ func (s *Scenario) GetSteps(params map[string]interface{}, key string, def []map
 func (s *Scenario) Exec(val string, params map[string]interface{}) error {
 
 	val2 := strings.ReplaceAll(val, ".", "_")
+	val2 = strings.ToLower(val2)
 	val2 = strings.Title(val2)
 
 	var paramsExec = []reflect.Value{
@@ -894,8 +895,8 @@ func (s *Scenario) Exec(val string, params map[string]interface{}) error {
 	}
 
 	// Plugin method
-	pluginMeth, err := s.M.GetPluginModule(val2)
-	if err == nil {
+	pluginMeth, found := s.M.GetPluginModule(val2)
+	if found {
 		ret := pluginMeth(params, s)
 		if ret != nil {
 			return ret
