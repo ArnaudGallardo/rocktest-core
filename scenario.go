@@ -878,23 +878,31 @@ func (s *Scenario) Exec(val string, params map[string]interface{}) error {
 		reflect.ValueOf(s),
 	}
 
+	// Core method
 	meth := reflect.ValueOf(&s.M).MethodByName(val2)
+	if meth.IsValid() {
+		ret := reflect.ValueOf(&s.M).MethodByName(val2).Call(paramsExec)
 
-	if !meth.IsValid() {
-		return errors.New("Unknown step type: " + val)
+		if !ret[0].IsNil() {
+			x := ret[0].Interface()
+			err := x.(error)
+
+			return err
+		} else {
+			return nil
+		}
 	}
 
-	ret := reflect.ValueOf(&s.M).MethodByName(val2).Call(paramsExec)
-
-	if !ret[0].IsNil() {
-		x := ret[0].Interface()
-		err := x.(error)
-
-		return err
-	} else {
+	// Plugin method
+	pluginMeth, err := s.M.GetPluginModule(val2)
+	if err == nil {
+		ret := pluginMeth(params, s)
+		if ret != nil {
+			return ret
+		}
 		return nil
 	}
-
+	return errors.New("Unknown step type: " + val)
 }
 
 // Gets the meta-informations on a module

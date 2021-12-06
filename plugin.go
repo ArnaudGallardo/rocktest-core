@@ -24,19 +24,18 @@ func (module *Module) Plugin(params map[string]interface{}, scenario *Scenario) 
 		panic(err)
 	}
 	fmt.Println("test")
-	v, err := p.Lookup("Name")
+	name, err := p.Lookup("Name")
 	if err != nil {
 		return errors.New("Plugin is missing the Name variable.")
 	}
-	fmt.Println(*v.(*string))
-	/*
-		f, err := p.Lookup(*v.(*string))
-		if err != nil {
-			panic(err)
-		}
-		f.(func(map[string]interface {}) error)(params) // prints "Hello, number 7"
-
-	*/
+	nameStr := *name.(*string)
+	fmt.Println(*name.(*string))
+	f, err := p.Lookup(nameStr)
+	if err != nil {
+		panic(err)
+	}
+	module.AddPluginModule(nameStr, f.(func(map[string]interface{}, *Scenario) error))
+	// f.(func(map[string]interface {}) error)(params) // prints "Hello, number 7"
 
 	return nil
 }
