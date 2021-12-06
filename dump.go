@@ -10,7 +10,7 @@ func (module *Module) Dump(params map[string]interface{}, scenario *Scenario) er
 
 	fmt.Printf("Variables for context %s\n", mod)
 
-	for k, v := range scenario.getCurrentContext() {
+	for k, v := range scenario.GetCurrentContext() {
 		fmt.Printf("  %s = %v\n", k, v)
 	}
 

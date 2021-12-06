@@ -100,7 +100,7 @@ func humanStr(src interface{}) string {
 	}
 }
 
-func (s *Scenario) pushContext() {
+func (s *Scenario) PushContext() {
 	s.Context = append(s.Context, make(map[string]string))
 }
 
@@ -110,7 +110,7 @@ func (s *Scenario) popContext() {
 	}
 }
 
-func (s *Scenario) getCurrentContext() map[string]string {
+func (s *Scenario) GetCurrentContext() map[string]string {
 	return s.Context[len(s.Context)-1]
 }
 
@@ -378,7 +378,7 @@ func (s *Scenario) PutContextCallerFunctio(name string, value interface{}) error
 
 // Put a variable in the context
 func (s *Scenario) PutContext(name string, value interface{}) error {
-	return s.localPutContext(name, s.getCurrentContext(), value)
+	return s.localPutContext(name, s.GetCurrentContext(), value)
 }
 
 // Put a variable in the context
@@ -421,9 +421,9 @@ func (s *Scenario) DeleteContextAs(params map[string]interface{}, defprefix stri
 
 // Removes a variable from the context
 func (s *Scenario) DeleteContext(name string) {
-	_, ok := s.getCurrentContext()[name]
+	_, ok := s.GetCurrentContext()[name]
 	if ok {
-		delete(s.getCurrentContext(), name)
+		delete(s.GetCurrentContext(), name)
 	}
 }
 
@@ -432,7 +432,7 @@ func (s *Scenario) DeleteContextRegex(regex string) {
 
 	log.Debugf("Remove variables matching %s", regex)
 
-	for k := range s.getCurrentContext() {
+	for k := range s.GetCurrentContext() {
 		re, err := regexp.Compile("^" + regex + "$")
 		if err != nil {
 			log.Errorf("Error compiling regex: %s", err.Error())
@@ -440,7 +440,7 @@ func (s *Scenario) DeleteContextRegex(regex string) {
 		}
 		if re.MatchString(k) {
 			log.Tracef("Remove %s variable", k)
-			delete(s.getCurrentContext(), k)
+			delete(s.GetCurrentContext(), k)
 		}
 	}
 }
@@ -458,7 +458,7 @@ func (s *Scenario) AddVariables(params map[string]interface{}) error {
 
 func (s *Scenario) CopyVariable(name string, source *Scenario) error {
 
-	val, found := source.getCurrentContext()[name]
+	val, found := source.GetCurrentContext()[name]
 	if found {
 		err := s.PutContext(name, val)
 		if err != nil {
@@ -472,7 +472,7 @@ func (s *Scenario) CopyVariable(name string, source *Scenario) error {
 // Add all the variables from params, excluding builtin variables
 func (s *Scenario) CopyVariables(source *Scenario) error {
 
-	for k, v := range source.getCurrentContext() {
+	for k, v := range source.GetCurrentContext() {
 
 		if s.isBuiltin(k) {
 			continue

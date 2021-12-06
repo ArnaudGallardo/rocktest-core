@@ -46,7 +46,7 @@ func (module *Module) Call(params map[string]interface{}, scenario *Scenario) er
 
 				inFunctionBefore := scenario.InFunction
 				scenario.InFunction = true
-				scenario.pushContext()
+				scenario.PushContext()
 
 				// The module name is actually the function name for this call
 				scenario.PutContext("module", fun)
