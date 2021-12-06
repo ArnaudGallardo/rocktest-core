@@ -2,9 +2,18 @@ package core
 
 import (
 	"errors"
-	"fmt"
 	"plugin"
+	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
+
+type PluginInterface struct {
+	Name    string
+	Version string
+	Author  string
+	Methods []string
+}
 
 func (module *Module) Plugin(params map[string]interface{}, scenario *Scenario) error {
 
@@ -18,24 +27,30 @@ func (module *Module) Plugin(params map[string]interface{}, scenario *Scenario) 
 		return err
 	}
 
-	fmt.Println("toto")
 	p, err := plugin.Open(val)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("test")
-	name, err := p.Lookup("Name")
+	metadata, err := p.Lookup("PluginMetadata")
 	if err != nil {
 		return errors.New("Plugin is missing the Name variable.")
 	}
-	nameStr := *name.(*string)
-	fmt.Println(*name.(*string))
-	f, err := p.Lookup(nameStr)
-	if err != nil {
-		panic(err)
+	pluginMetadata := *metadata.(*PluginInterface)
+
+	// Display plugin infos
+	log.Debugf("Loading plugin %s - version %s - author: %s\n", pluginMetadata.Name, pluginMetadata.Version, pluginMetadata.Author)
+
+	// Load methods
+	for _, v := range pluginMetadata.Methods {
+		f, err := p.Lookup(v)
+		if err != nil {
+			return err
+		}
+
+		name := strings.ReplaceAll(v, ".", "_")
+		name = strings.Title(name)
+		module.AddPluginModule(name, f.(func(map[string]interface{}, *Scenario) error))
 	}
-	module.AddPluginModule(nameStr, f.(func(map[string]interface{}, *Scenario) error))
-	// f.(func(map[string]interface {}) error)(params) // prints "Hello, number 7"
 
 	return nil
 }
