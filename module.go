@@ -13,5 +13,9 @@ func (module *Module) GetPluginModule(name string) (func(map[string]interface{},
 }
 
 func (module *Module) AddPluginModule(name string, v func(map[string]interface{}, *Scenario) error) {
+	if module.plugins == nil {
+		// Init map
+		module.plugins = make(map[string]func(map[string]interface{}, *Scenario) error)
+	}
 	module.plugins[name] = v
 }
